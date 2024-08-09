@@ -39,10 +39,10 @@ def monitor_channels(selected_channels):
             # for ch in current_string:
                 # if ch.isnumeric() or ch == '.':
                     # current_clean += ch
-            current = int((current_string)*1000)
+            # current = int((current_string)*1000)
             print("Channel: ", ch_num)  # presumably we want to do something other than print but not entirely sure what 
             print("Voltage: ", voltage)
-            print("Current: ", current)
+            print("Current: ", current_string)
             print(current_string)
             print(channel.get('VSET'))
         time.sleep(0.5)     # updates every 0.5 s, but will in theory be essentially continous if I remove this

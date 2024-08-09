@@ -276,14 +276,14 @@ class OneCAENChannel:
 
 	@property
 	def V_mon(self):
-		polarity = -1
-		# channel_polarity = self.polarity
-		# if channel_polarity == '+' or channel_polarity == "+":
-			# polarity = 1
-		# elif channel_polarity == '-' or channel_polarity == "-":
-			# polarity = -1
-		# else:
-			# raise RuntimeError(f'Unexpected polarity response from the insturment. I was expecting one of {{"+","-"}} but received instead {channel_polarity}.')
+		# polarity = -1
+		channel_polarity = self.polarity[0]
+		if channel_polarity == '+' or channel_polarity == "+":
+			polarity = 1
+		elif channel_polarity == '-' or channel_polarity == "-":
+			polarity = -1
+		else:
+			raise RuntimeError(f'Unexpected polarity response from the insturment. I was expecting one of {{"+","-"}} but received instead {channel_polarity}.')
 		return polarity*self.get(PAR='VMON')
 
 	@property
@@ -328,7 +328,8 @@ class OneCAENChannel:
 
 	@property
 	def current_compliance(self):
-		return self.get('ISET')*1e-6
+		# return self.get('ISET')*1e-6
+		return self.get('ISET')
 	@current_compliance.setter
 	def current_compliance(self, amperes):
 		_validate_numeric_type(amperes, 'amperes', float)

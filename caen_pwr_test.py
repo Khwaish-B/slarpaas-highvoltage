@@ -11,16 +11,28 @@ caen.channels[0].output = "on"
 
 print("current voltage = ", caen.channels[0].V_mon)
 
-caen.channels[0].V_set = 10
 print("voltage = ", caen.channels[0].I_mon)
+
+caen.channels[0].set('RUP', 13)
+print(caen.channels[0].get('RUP'))
+caen.channels[0].V_set = 32
+
 
 print(caen.channels[0].get('VMON'))
 
 caen.channels[0].output = "on"
 
-print(caen.channels[0].polarity)
+print(caen.channels[0].polarity[0])
 
 print(caen.channels[0].get('VSET'))
 print(caen.channels[0].V_set)
+
+current_lim = 10*1000
+# caen.channels[0].current_compliance = current_lim/1000
+
+print("look", caen.channels[0].V_mon)
+
+# print(caen.channels[0].current_compliance)
+# print(caen.channels[0].get('IMON'))
 
 # print(caen.channels[0].status_byte)
