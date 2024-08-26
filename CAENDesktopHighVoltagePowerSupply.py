@@ -1,3 +1,4 @@
+# Lightly modified version of https://github.com/SengerM/CAENpy
 import serial
 import socket
 import platform
