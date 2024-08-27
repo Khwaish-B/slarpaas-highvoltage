@@ -1,3 +1,4 @@
+# slightly modified version of CAENpy (https://github.com/SengerM/CAENpy)
 import serial
 import socket
 import platform
@@ -134,8 +135,8 @@ class CAENDesktopHighVoltagePowerSupply:
 		# channel: Integer number specifying the numer of the channel.
 		# device: If you have more than 1 device connected in the daisy chain, use this parameter to specify the device number (In the user manual this is the <whatever> that goes in "BD:whatever").
 		response = self.query(CMD='SET', PAR=parameter, CH=channel, BD=device, VAL=value)
-		if check_successful_response(response) == False:
-			raise RuntimeError(f'Error trying to set the parameter {parameter}. The response from the instrument is: "{response}"')
+		# if check_successful_response(response) == False:
+			# raise RuntimeError(f'Error trying to set the parameter {parameter}. The response from the instrument is: "{response}"')
 
 	def ramp_voltage(self, voltage: float, channel: int, device: int = None, ramp_speed_VperSec: float = 5, timeout: float = 10):
 		# Blocks the execution until the ramp is completed.
@@ -185,7 +186,9 @@ class CAENDesktopHighVoltagePowerSupply:
 		channel. Returns a dictionary containint the status byte and also
 		some "human friendly" interpretations of the status byte."""
 		_validate_type(channel, 'channel', int)
-		status_byte = int(self.query(CMD='MON', PAR='STAT',  CH=channel, BD=device)[-5:])
+		status_byte_raw = (self.query(CMD='MON', PAR='STAT',  CH=channel, BD=device)[-5:])
+		truncate_at = len(status_byte_raw)-1
+		status_byte = int(status_byte_raw[:truncate_at])
 		status_byte_str = f"{status_byte:016b}"
 		status_byte_str = status_byte_str[::-1]
 		return {
@@ -276,14 +279,14 @@ class OneCAENChannel:
 
 	@property
 	def V_mon(self):
-		polarity = -1
-		# channel_polarity = self.polarity
-		# if channel_polarity == '+' or channel_polarity == "+":
-			# polarity = 1
-		# elif channel_polarity == '-' or channel_polarity == "-":
-			# polarity = -1
-		# else:
-			# raise RuntimeError(f'Unexpected polarity response from the insturment. I was expecting one of {{"+","-"}} but received instead {channel_polarity}.')
+		# polarity = -1
+		channel_polarity = self.polarity
+		if channel_polarity == '+' or channel_polarity == "+":
+			polarity = 1
+		elif channel_polarity == '-' or channel_polarity == "-":
+			polarity = -1
+		else:
+			raise RuntimeError(f'Unexpected polarity response from the insturment. I was expecting one of {{"+","-"}} but received instead {channel_polarity}.')
 		return polarity*self.get(PAR='VMON')
 
 	@property
@@ -300,7 +303,7 @@ class OneCAENChannel:
 
 	@property
 	def polarity(self):
-		return self.get(PAR='POL')
+		return self.get(PAR='POL')[0]
 
 	@property
 	def status_byte(self):
@@ -328,7 +331,8 @@ class OneCAENChannel:
 
 	@property
 	def current_compliance(self):
-		return self.get('ISET')*1e-6
+		# return self.get('ISET')*1e-6
+		return self.get('ISET')
 	@current_compliance.setter
 	def current_compliance(self, amperes):
 		_validate_numeric_type(amperes, 'amperes', float)
