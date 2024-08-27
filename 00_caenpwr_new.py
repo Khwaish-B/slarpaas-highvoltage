@@ -58,12 +58,12 @@ if __name__ == '__main__':
     context[0].setValues(fx_hr, ch_num, initial)
 
     # # setting up ADS for reading voltmeter -- note: ADS might not be accurate upto milimeters (which given the voltage divider could have a significant effect). If this is a noticible problem, round or truncate voltage readings
-    # ads = ADS1115()
-    # ads.gain = 1
-    # ads.data_rate = 128
-    # zero_error_fixing = [ads.read_adc(0)*(4.096/32767), ads.read_adc(1)*(4.096/32767), ads.read_adc(2)*(4.096/32767), ads.read_adc(3)*(4.096/32767)]    # ADS has appreciable zero error, this step is for calibrating
-    # print(zero_error_fixing)
-    # This is now done with same set up as slarchetto - cannot be used as is because voltage is negative
+    ads = ADS1115()
+    ads.gain = 1
+    ads.data_rate = 128
+    zero_error_fixing = [ads.read_adc(0)*(4.096/32767), ads.read_adc(1)*(4.096/32767), ads.read_adc(2)*(4.096/32767), ads.read_adc(3)*(4.096/32767)]    # ADS has appreciable zero error, this step is for calibrating
+    print(zero_error_fixing)
+    # Quick fix: putting a 3V battery in series so that negative voltages can be read as positive - might consider a more permanent solution in the future
     
     while True:
         # taking current in units of 10 nanoamps
@@ -82,7 +82,7 @@ if __name__ == '__main__':
         current_value = context[0].getValues(fx_ir, ch_num, ch_num)
         ch_status = context[0].getValues(fx_ir, 2*ch_num, ch_num)
         polarity = context[0].getValues(fx_ir, 3*ch_num, ch_num)
-        # filter_volt = context[0].getValues(fx_ir, 4*ch_num, ch_num)
+        filter_volt = context[0].getValues(fx_ir, 4*ch_num, ch_num)
                 
         for i in range(0, ch_num):
             channel = caen.channels[i]
@@ -114,11 +114,11 @@ if __name__ == '__main__':
             elif channel.output == "on":
                 ch_status[i] = 1
                 
-            # # reading filter out put voltage from voltneter
-            # voltmeter_val = abs(ads.read_adc(i)*(4.096/32767) - zero_error_fixing[i])
-            # filter_volt[i] = int(voltmeter_val*((100*(10**3+10**6))/(100*(10**3)))*10) # high voltage filter in units of 0.1 V - V_out(voltage divider) = (R2/(R1+R2))*V_in and we are looking for V_in
-            # # filter_volt[i] = voltmeter_val*(((10**5+10**6))/(100*(10**3))) # low voltage filter  
-            # print(voltmeter_val)
+            # reading filter out put voltage from voltneter
+            voltmeter_val = (ads.read_adc(i)*(4.096/32767) )
+            filter_volt[i] = int(voltmeter_val*((100*(10**3+10**6))/(100*(10**3)))*10) # high voltage filter in units of 0.1 V - V_out(voltage divider) = (R2/(R1+R2))*V_in and we are looking for V_in
+            # filter_volt[i] = voltmeter_val*(((10**5+10**6))/(100*(10**3))) # low voltage filter  
+            print(voltmeter_val)
             
         read_values = volt_value + current_value + ch_status + polarity  # combining all the read values
         context[0].setValues(fx_ir, 0, read_values) # updating registers
