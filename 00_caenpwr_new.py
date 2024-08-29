@@ -115,7 +115,7 @@ if __name__ == '__main__':
                 ch_status[i] = 1
                 
             # reading filter out put voltage from voltneter
-            voltmeter_val = (ads.read_adc(i)*(4.096/32767) )
+            voltmeter_val = (ads.read_adc(i)*(4.096/32767) - zero_error_fixing)
             filter_volt[i] = int(voltmeter_val*((100*(10**3+10**6))/(100*(10**3)))*10) # high voltage filter in units of 0.1 V - V_out(voltage divider) = (R2/(R1+R2))*V_in and we are looking for V_in
             # filter_volt[i] = voltmeter_val*(((10**5+10**6))/(100*(10**3))) # low voltage filter  
             print(voltmeter_val)
